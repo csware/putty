@@ -23,26 +23,33 @@ struct agent_callback {
 
 void fatalbox(char *p, ...)
 {
-    va_list ap;
-    fprintf(stderr, "FATAL ERROR: ");
-    va_start(ap, p);
-    vfprintf(stderr, p, ap);
-    va_end(ap);
-    fputc('\n', stderr);
+	va_list ap;
+	char *stuff, morestuff[100];
+
+	va_start(ap, p);
+	stuff = dupvprintf(p, ap);
+	va_end(ap);
+	sprintf(morestuff, "%.70s Fatal Error", appname);
+	MessageBox(GetParentHwnd(), stuff, morestuff, MB_ICONERROR | MB_OK);
+	sfree(stuff);
     if (logctx) {
         log_free(logctx);
         logctx = NULL;
     }
-    cleanup_exit(1);
+	cleanup_exit(1);
 }
 void modalfatalbox(char *p, ...)
 {
-    va_list ap;
-    fprintf(stderr, "FATAL ERROR: ");
-    va_start(ap, p);
-    vfprintf(stderr, p, ap);
-    va_end(ap);
-    fputc('\n', stderr);
+	va_list ap;
+	char *stuff, morestuff[100];
+
+	va_start(ap, p);
+	stuff = dupvprintf(p, ap);
+	va_end(ap);
+	sprintf(morestuff, "%.70s Fatal Error", appname);
+	MessageBox(GetParentHwnd(), stuff, morestuff,
+		MB_SYSTEMMODAL | MB_ICONERROR | MB_OK);
+	sfree(stuff);
     if (logctx) {
         log_free(logctx);
         logctx = NULL;
@@ -52,11 +59,15 @@ void modalfatalbox(char *p, ...)
 void nonfatal(char *p, ...)
 {
     va_list ap;
-    fprintf(stderr, "ERROR: ");
+    char *stuff, morestuff[100];
+
     va_start(ap, p);
-    vfprintf(stderr, p, ap);
+    stuff = dupvprintf(p, ap);
     va_end(ap);
-    fputc('\n', stderr);
+    sprintf(morestuff, "%.70s Fatal Error", appname);
+    MessageBox(GetParentHwnd(), stuff, morestuff,
+        MB_SYSTEMMODAL | MB_ICONERROR | MB_OK);
+    sfree(stuff);
     if (logctx) {
         log_free(logctx);
         logctx = NULL;
@@ -65,25 +76,32 @@ void nonfatal(char *p, ...)
 void connection_fatal(void *frontend, char *p, ...)
 {
     va_list ap;
-    fprintf(stderr, "FATAL ERROR: ");
-    va_start(ap, p);
-    vfprintf(stderr, p, ap);
-    va_end(ap);
-    fputc('\n', stderr);
+	char *stuff, morestuff[100];
+
+	va_start(ap, p);
+	stuff = dupvprintf(p, ap);
+	va_end(ap);
+	sprintf(morestuff, "%.70s Fatal Error", appname);
+	MessageBox(GetParentHwnd(), stuff, morestuff,
+		MB_SYSTEMMODAL | MB_ICONERROR | MB_OK);
+	sfree(stuff);
     if (logctx) {
         log_free(logctx);
         logctx = NULL;
     }
-    cleanup_exit(1);
+	cleanup_exit(1);
 }
 void cmdline_error(char *p, ...)
 {
-    va_list ap;
-    fprintf(stderr, "plink: ");
-    va_start(ap, p);
-    vfprintf(stderr, p, ap);
-    va_end(ap);
-    fputc('\n', stderr);
+	va_list ap;
+	char *stuff, morestuff[100];
+
+	va_start(ap, p);
+	stuff = dupvprintf(p, ap);
+	va_end(ap);
+	sprintf(morestuff, "%.70s Command Line Error", appname);
+	MessageBox(GetParentHwnd(), stuff, morestuff, MB_ICONERROR | MB_OK);
+	sfree(stuff);
     exit(1);
 }
 
@@ -176,51 +194,52 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
  */
 static void usage(void)
 {
-    printf("PuTTY Link: command-line connection utility\n");
-    printf("%s\n", ver);
-    printf("Usage: plink [options] [user@]host [command]\n");
-    printf("       (\"host\" can also be a PuTTY saved session name)\n");
-    printf("Options:\n");
-    printf("  -V        print version information and exit\n");
-    printf("  -pgpfp    print PGP key fingerprints and exit\n");
-    printf("  -v        show verbose messages\n");
-    printf("  -load sessname  Load settings from saved session\n");
-    printf("  -ssh -telnet -rlogin -raw -serial\n");
-    printf("            force use of a particular protocol\n");
-    printf("  -P port   connect to specified port\n");
-    printf("  -l user   connect with specified username\n");
-    printf("  -batch    disable all interactive prompts\n");
-    printf("The following options only apply to SSH connections:\n");
-    printf("  -pw passw login with specified password\n");
-    printf("  -D [listen-IP:]listen-port\n");
-    printf("            Dynamic SOCKS-based port forwarding\n");
-    printf("  -L [listen-IP:]listen-port:host:port\n");
-    printf("            Forward local port to remote address\n");
-    printf("  -R [listen-IP:]listen-port:host:port\n");
-    printf("            Forward remote port to local address\n");
-    printf("  -X -x     enable / disable X11 forwarding\n");
-    printf("  -A -a     enable / disable agent forwarding\n");
-    printf("  -t -T     enable / disable pty allocation\n");
-    printf("  -1 -2     force use of particular protocol version\n");
-    printf("  -4 -6     force use of IPv4 or IPv6\n");
-    printf("  -C        enable compression\n");
-    printf("  -i key    private key file for authentication\n");
-    printf("  -noagent  disable use of Pageant\n");
-    printf("  -agent    enable use of Pageant\n");
-    printf("  -m file   read remote command(s) from file\n");
-    printf("  -s        remote command is an SSH subsystem (SSH-2 only)\n");
-    printf("  -N        don't start a shell/command (SSH-2 only)\n");
-    printf("  -nc host:port\n");
-    printf("            open tunnel in place of session (SSH-2 only)\n");
-    printf("  -sercfg configuration-string (e.g. 19200,8,n,1,X)\n");
-    printf("            Specify the serial configuration (serial only)\n");
-    exit(1);
+	char buf[10000];
+	int j = 0;
+
+	j += sprintf(buf+j, "TortoiseGitPlink: command-line connection utility (based on PuTTY Plink)\n");
+    j += sprintf(buf+j, "%s\n", ver);
+    j += sprintf(buf+j, "Usage: tortoisegitplink [options] [user@]host [command]\n");
+    j += sprintf(buf+j, "       (\"host\" can also be a PuTTY saved session name)\n");
+    j += sprintf(buf+j, "Options:\n");
+    j += sprintf(buf+j, "  -V        print version information and exit\n");
+    j += sprintf(buf+j, "  -pgpfp    print PGP key fingerprints and exit\n");
+    j += sprintf(buf+j, "  -v        show verbose messages\n");
+    j += sprintf(buf+j, "  -load sessname  Load settings from saved session\n");
+    j += sprintf(buf+j, "  -ssh -telnet -rlogin -raw\n");
+    j += sprintf(buf+j, "            force use of a particular protocol\n");
+    j += sprintf(buf+j, "  -P port   connect to specified port\n");
+    j += sprintf(buf+j, "  -l user   connect with specified username\n");
+    j += sprintf(buf+j, "The following options only apply to SSH connections:\n");
+    j += sprintf(buf+j, "  -pw passw login with specified password\n");
+    j += sprintf(buf+j, "  -D [listen-IP:]listen-port\n");
+    j += sprintf(buf+j, "            Dynamic SOCKS-based port forwarding\n");
+    j += sprintf(buf+j, "  -L [listen-IP:]listen-port:host:port\n");
+    j += sprintf(buf+j, "            Forward local port to remote address\n");
+    j += sprintf(buf+j, "  -R [listen-IP:]listen-port:host:port\n");
+    j += sprintf(buf+j, "            Forward remote port to local address\n");
+    j += sprintf(buf+j, "  -X -x     enable / disable X11 forwarding\n");
+    j += sprintf(buf+j, "  -A -a     enable / disable agent forwarding\n");
+    j += sprintf(buf+j, "  -t -T     enable / disable pty allocation\n");
+    j += sprintf(buf+j, "  -1 -2     force use of particular protocol version\n");
+    j += sprintf(buf+j, "  -4 -6     force use of IPv4 or IPv6\n");
+    j += sprintf(buf+j, "  -C        enable compression\n");
+    j += sprintf(buf+j, "  -i key    private key file for authentication\n");
+    j += sprintf(buf+j, "  -noagent  disable use of Pageant\n");
+    j += sprintf(buf+j, "  -agent    enable use of Pageant\n");
+    j += sprintf(buf+j, "  -m file   read remote command(s) from file\n");
+    j += sprintf(buf+j, "  -s        remote command is an SSH subsystem (SSH-2 only)\n");
+    j += sprintf(buf+j, "  -N        don't start a shell/command (SSH-2 only)\n");
+    j += sprintf(buf+j, "  -nc host:port\n");
+    j += sprintf(buf+j, "            open tunnel in place of session (SSH-2 only)\n");
+	MessageBox(NULL, buf, "TortoiseGitPlink", MB_ICONINFORMATION);
+	exit(1);
 }
 
 static void version(void)
 {
-    printf("plink: %s\n", ver);
-    exit(1);
+	printf("TortoiseGitPlink: %s\n", ver);
+	exit(1);
 }
 
 char *do_select(SOCKET skt, int startup)
@@ -320,24 +339,11 @@ int main(int argc, char **argv)
     conf = conf_new();
     do_defaults(NULL, conf);
     loaded_session = FALSE;
-    default_protocol = conf_get_int(conf, CONF_protocol);
-    default_port = conf_get_int(conf, CONF_port);
     errors = 0;
-    {
-	/*
-	 * Override the default protocol if PLINK_PROTOCOL is set.
-	 */
-	char *p = getenv("PLINK_PROTOCOL");
-	if (p) {
-	    const Backend *b = backend_from_name(p);
-	    if (b) {
-		default_protocol = b->protocol;
-		default_port = b->default_port;
-		conf_set_int(conf, CONF_protocol, default_protocol);
-		conf_set_int(conf, CONF_port, default_port);
-	    }
-	}
-    }
+    conf_set_int(conf, CONF_protocol, default_protocol);
+    conf_set_int(conf, CONF_port, default_port);
+    conf_set_int(conf, CONF_agentfwd, 0);
+    conf_set_int(conf, CONF_x11_forward, 0);
     while (--argc) {
 	char *p = *++argv;
 	if (*p == '-') {
@@ -345,14 +351,14 @@ int main(int argc, char **argv)
 					    1, conf);
 	    if (ret == -2) {
 		fprintf(stderr,
-			"plink: option \"%s\" requires an argument\n", p);
+			"tortoisegitplink: option \"%s\" requires an argument\n", p);
 		errors = 1;
 	    } else if (ret == 2) {
 		--argc, ++argv;
 	    } else if (ret == 1) {
 		continue;
 	    } else if (!strcmp(p, "-batch")) {
-		console_batch_mode = 1;
+			// ignore and do not print an error message
 	    } else if (!strcmp(p, "-s")) {
 		/* Save status to write to conf later. */
 		use_subsystem = 1;
@@ -364,7 +370,7 @@ int main(int argc, char **argv)
                 pgp_fingerprints();
                 exit(1);
 	    } else {
-		fprintf(stderr, "plink: unknown option \"%s\"\n", p);
+		fprintf(stderr, "tortoisegitplink: unknown option \"%s\"\n", p);
 		errors = 1;
 	    }
 	} else if (*p) {
@@ -760,4 +766,9 @@ int main(int argc, char **argv)
     }
     cleanup_exit(exitcode);
     return 0;			       /* placate compiler warning */
+}
+
+int WinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow)
+{
+	main(__argc,__argv);
 }
