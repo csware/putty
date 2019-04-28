@@ -95,6 +95,11 @@ void modalfatalbox(const char *fmt, ...)
     exit(1);
 }
 
+bool modalconfirmbox(const char* title, const char* msg)
+{
+    return MessageBox(NULL, msg, title, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES;
+}
+
 static bool has_security;
 
 struct PassphraseProcStruct {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * pageant.c: cross-platform code to implement Pageant.
  */
 
@@ -28,6 +28,8 @@ void random_read(void *buf, size_t size)
 }
 
 static bool pageant_local = false;
+
+static bool pageant_ask_before_sign = false;
 
 struct PageantClientDialogId {
     int dummy;
@@ -454,6 +456,27 @@ static void signop_coroutine(PageantAsyncOp *pao)
         goto respond;
     }
 
+    {
+        char* fingerprint = ssh2_fingerprint_blob(
+        ptrlen_from_strbuf(so->pk->public_blob), SSH_FPTYPE_DEFAULT);
+        char* msg;
+        if (so->pk->skey->comment) {
+            msg = dupprintf("Allow to authenticate with key\r\n%s\r\n%s?", fingerprint, so->pk->skey->comment);
+        } else {
+            msg = dupprintf("Allow to authenticate with key\r\n%s?", fingerprint);
+        }
+        sfree(fingerprint);
+
+        if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+            response = strbuf_new();
+            failure(so->pao.info->pc, so->pao.reqid, response, so->failure_type,
+                    "sign request denied by user");
+            sfree(msg);
+            goto respond;
+        }
+        sfree(msg);
+    }
+
     strbuf *signature = strbuf_new();
     ssh_key_sign(so->pk->skey->key, ptrlen_from_strbuf(so->data_to_sign),
                  so->flags, BinarySink_UPCAST(signature));
@@ -756,6 +779,23 @@ static PageantAsyncOp *pageant_make_op(
         if ((pk = findkey1(&reqkey)) == NULL) {
             fail("key not found");
             goto challenge1_cleanup;
+        }
+        {
+            char* fingerprint = rsa_ssh1_fingerprint(&reqkey);
+            char* msg;
+            if (reqkey.comment) {
+                msg = dupprintf("Allow to authenticate with key\r\n%s\r\n%s?", fingerprint, reqkey.comment);
+            } else {
+                msg = dupprintf("Allow to authenticate with key\r\n%s?", fingerprint);
+            }
+            sfree(fingerprint);
+
+            if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                sfree(msg);
+                fail("sign request denied by user");
+                goto challenge1_cleanup;
+            }
+            sfree(msg);
         }
         response = rsa_ssh1_decrypt(challenge, pk->rkey);
 
@@ -2437,4 +2477,14 @@ void pageant_pubkey_free(struct pageant_pubkey *key)
     sfree(key->comment);
     strbuf_free(key->blob);
     sfree(key);
+}
+
+bool pageant_get_ask_before_sign()
+{
+    return pageant_ask_before_sign;
+}
+
+void pageant_set_ask_before_sign(bool ask_befor_sign)
+{
+    pageant_ask_before_sign = ask_befor_sign;
 }
