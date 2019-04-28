@@ -29,6 +29,8 @@ void random_read(void *buf, size_t size)
 
 static bool pageant_local = false;
 
+static bool pageant_ask_before_sign = false;
+
 /*
  * rsakeys stores SSH-1 RSA keys. ssh2keys stores all SSH-2 keys.
  */
@@ -257,6 +259,24 @@ void pageant_handle_msg(BinarySink *bs,
                 pageant_failure_msg(bs, "key not found", logctx, logfn);
                 goto challenge1_cleanup;
             }
+
+            {
+                char* fingerprint = rsa_ssh1_fingerprint(&reqkey);
+                char* msg;
+                if (key->comment) {
+                    msg = dupprintf("Allow to authenticate with key\r\n%s\r\n%s?", fingerprint, key->comment);
+                } else {
+                    msg = dupprintf("Allow to authenticate with key\r\n%s?", fingerprint);
+                }
+                sfree(fingerprint);
+
+                if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                    sfree(msg);
+                    goto challenge1_cleanup;
+                }
+                sfree(msg);
+            }
+
             response = rsa_ssh1_decrypt(challenge, key);
 
             {
@@ -352,6 +372,24 @@ void pageant_handle_msg(BinarySink *bs,
                 sfree(msg);
                 sfree(invalid);
                 return;
+            }
+
+            {
+                char* fingerprint = ssh2_fingerprint_blob(keyblob);
+                char* msg;
+                if (key->comment) {
+                    msg = dupprintf("Allow to authenticate with key\r\n%s\r\n%s?", fingerprint, key->comment);
+                } else {
+                    msg = dupprintf("Allow to authenticate with key\r\n%s?", fingerprint);
+                }
+                sfree(fingerprint);
+
+                if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                    pageant_failure_msg(bs, "sign request denied by user", logctx, logfn);
+                    sfree(msg);
+                    return;
+                }
+                sfree(msg);
             }
 
             signature = strbuf_new();
@@ -1491,4 +1529,14 @@ void pageant_pubkey_free(struct pageant_pubkey *key)
     sfree(key->comment);
     strbuf_free(key->blob);
     sfree(key);
+}
+
+bool pageant_get_ask_before_sign()
+{
+    return pageant_ask_before_sign;
+}
+
+void pageant_set_ask_before_sign(bool ask_befor_sign)
+{
+    pageant_ask_before_sign = ask_befor_sign;
 }
