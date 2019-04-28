@@ -144,3 +144,6 @@ int pageant_enum_keys(pageant_key_enum_fn_t callback, void *callback_ctx,
                       char **retstr);
 int pageant_delete_key(struct pageant_pubkey *key, char **retstr);
 int pageant_delete_all_keys(char **retstr);
+
+bool pageant_get_ask_before_sign();
+void pageant_set_ask_before_sign(bool ask_befor_sign);

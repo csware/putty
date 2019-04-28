@@ -260,7 +260,7 @@ void pageant_handle_msg(BinarySink *bs,
                 goto challenge1_cleanup;
             }
 
-            {
+            if (pageant_get_ask_before_sign()) {
                 char* fingerprint = rsa_ssh1_fingerprint(&reqkey);
                 char* msg;
                 if (key->comment) {
@@ -374,7 +374,7 @@ void pageant_handle_msg(BinarySink *bs,
                 return;
             }
 
-            {
+            if (pageant_get_ask_before_sign()) {
                 char* fingerprint = ssh2_fingerprint_blob(keyblob);
                 char* msg;
                 if (key->comment) {
