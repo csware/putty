@@ -240,6 +240,9 @@ int pageant_reencrypt_all_keys(char **retstr);
 int pageant_sign(struct pageant_pubkey *key, ptrlen message, strbuf *out,
                  uint32_t flags, char **retstr);
 
+bool pageant_get_ask_before_sign();
+void pageant_set_ask_before_sign(bool ask_befor_sign);
+
 /*
  * Definitions for agent protocol extensions.
  */

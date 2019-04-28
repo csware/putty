@@ -456,7 +456,7 @@ static void signop_coroutine(PageantAsyncOp *pao)
         goto respond;
     }
 
-    {
+    if (pageant_get_ask_before_sign()) {
         char* fingerprint = ssh2_fingerprint_blob(
         ptrlen_from_strbuf(so->pk->public_blob), SSH_FPTYPE_DEFAULT);
         char* msg;
@@ -780,7 +780,7 @@ static PageantAsyncOp *pageant_make_op(
             fail("key not found");
             goto challenge1_cleanup;
         }
-        {
+        if (pageant_get_ask_before_sign()) {
             char* fingerprint = rsa_ssh1_fingerprint(&reqkey);
             char* msg;
             if (reqkey.comment) {

@@ -69,9 +69,10 @@ static filereq *keypath = NULL;
 #define IDM_ADDKEY_ENCRYPTED   0x0040
 #define IDM_REMOVE_ALL         0x0050
 #define IDM_REENCRYPT_ALL      0x0060
-#define IDM_HELP               0x0070
-#define IDM_ABOUT              0x0080
-#define IDM_PUTTY              0x0090
+#define IDM_ASKSIGN            0x0070
+#define IDM_HELP               0x0080
+#define IDM_ABOUT              0x0090
+#define IDM_PUTTY              0x0100
 #define IDM_SESSIONS_BASE      0x1000
 #define IDM_SESSIONS_MAX       0x2000
 #define PUTTY_REGKEY      "Software\\SimonTatham\\PuTTY\\Sessions"
@@ -1180,6 +1181,7 @@ static LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT message,
         if (!menuinprogress) {
             menuinprogress = true;
             update_sessions();
+            CheckMenuItem(systray_menu, IDM_ASKSIGN, pageant_get_ask_before_sign() ? MF_CHECKED : MF_UNCHECKED);
             SetForegroundWindow(hwnd);
             TrackPopupMenu(systray_menu,
                            TPM_RIGHTALIGN | TPM_BOTTOMALIGN |
@@ -1256,6 +1258,9 @@ static LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT message,
             break;
           case IDM_HELP:
             launch_help(hwnd, WINHELP_CTX_pageant_general);
+            break;
+          case IDM_ASKSIGN:
+            pageant_set_ask_before_sign(!pageant_get_ask_before_sign());
             break;
           default: {
             if(wParam >= IDM_SESSIONS_BASE && wParam <= IDM_SESSIONS_MAX) {
@@ -1642,6 +1647,8 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
                "Remove All Keys");
     AppendMenu(systray_menu, MF_ENABLED, IDM_REENCRYPT_ALL,
                "Re-encrypt All Keys");
+    AppendMenu(systray_menu, MF_SEPARATOR, 0, 0);
+    AppendMenu(systray_menu, MF_ENABLED, IDM_ASKSIGN, "Ask &Before Authenticating");
     AppendMenu(systray_menu, MF_SEPARATOR, 0, 0);
     if (has_help())
         AppendMenu(systray_menu, MF_ENABLED, IDM_HELP, "&Help");
