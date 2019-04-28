@@ -75,8 +75,11 @@ static filereq *keypath = NULL;
 #define IDM_PUTTY              0x0100
 #define IDM_SESSIONS_BASE      0x1000
 #define IDM_SESSIONS_MAX       0x2000
-#define PUTTY_REGKEY      "Software\\SimonTatham\\PuTTY\\Sessions"
+#define PUTTY_REGKEY      "Software\\SimonTatham\\PuTTY"
+#define PUTTY_PAGEANT_REGKEY  PUTTY_REGKEY "\\Pageant"
+#define PUTTY_SESSIONS_REGKEY PUTTY_REGKEY "\\Sessions"
 #define PUTTY_DEFAULT     "Default%20Settings"
+#define PAGEANT_ASKBEFORE "AskBeforeSigning"
 static int initial_menuitems_count;
 
 /*
@@ -790,7 +793,7 @@ static void update_sessions(void)
     if (!putty_path)
         return;
 
-    if(ERROR_SUCCESS != RegOpenKey(HKEY_CURRENT_USER, PUTTY_REGKEY, &hkey))
+    if(ERROR_SUCCESS != RegOpenKey(HKEY_CURRENT_USER, PUTTY_SESSIONS_REGKEY, &hkey))
         return;
 
     for(num_entries = GetMenuItemCount(session_menu);
@@ -1260,7 +1263,23 @@ static LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT message,
             launch_help(hwnd, WINHELP_CTX_pageant_general);
             break;
           case IDM_ASKSIGN:
-            pageant_set_ask_before_sign(!pageant_get_ask_before_sign());
+          {
+                HKEY subkey1, subkey2;
+                DWORD value;
+                pageant_set_ask_before_sign(!pageant_get_ask_before_sign());
+                if (RegCreateKey(HKEY_CURRENT_USER, PUTTY_REGKEY, &subkey1) != ERROR_SUCCESS)
+                    break;
+
+                if (RegCreateKey(HKEY_CURRENT_USER, PUTTY_PAGEANT_REGKEY, &subkey2) != ERROR_SUCCESS) {
+                    RegCloseKey(subkey1);
+                    break;
+                }
+
+                value = pageant_get_ask_before_sign() ? 1 : 0;
+                RegSetValueEx(subkey2, PAGEANT_ASKBEFORE, 0, REG_DWORD, (CONST BYTE*)&value, sizeof(value));
+                RegCloseKey(subkey1);
+                RegCloseKey(subkey2);
+            }
             break;
           default: {
             if(wParam >= IDM_SESSIONS_BASE && wParam <= IDM_SESSIONS_MAX) {
@@ -1473,6 +1492,21 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
      */
     if (!already_running) {
         pageant_init();
+    }
+
+    /*
+     * Load old ask-before-sign state
+     */
+    {
+        HKEY hkey;
+        if (RegOpenKey(HKEY_CURRENT_USER, PUTTY_PAGEANT_REGKEY, &hkey) == ERROR_SUCCESS) {
+            DWORD type, val, size;
+            size = sizeof(val);
+
+        if (RegQueryValueEx(hkey, PAGEANT_ASKBEFORE, 0, &type, (BYTE*)&val, &size) == ERROR_SUCCESS && size == sizeof(val) && type == REG_DWORD)
+            pageant_set_ask_before_sign(val > 0);
+        RegCloseKey(hkey);
+        }
     }
 
     /*
