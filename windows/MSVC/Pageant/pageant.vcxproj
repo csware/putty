@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Pageant</ProjectName>
+    <ProjectGuid>{D3AFBFBE-5501-4077-B3B5-3D28CBCF8F20}</ProjectGuid>
+    <RootNamespace>pageant</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)TortoiseGit.toolset.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  <Import Project="$(SolutionDir)TortoiseGit.common.props" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\;..\..\..\charset\;..\..\..\windows\;..\..\..\unix\;..\..\..\mac\;..\..\..\macosx\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NO_HTMLHELP;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;SECURITY_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>imm32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <SDLCheck>false</SDLCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Image Include="..\..\pageant.ico" />
+    <Image Include="..\..\pageants.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\pageant.mft" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\pageant.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\ecc.h" />
+    <ClInclude Include="..\..\..\marshal.h" />
+    <ClInclude Include="..\..\..\misc.h" />
+    <ClInclude Include="..\..\..\mpint.h" />
+    <ClInclude Include="..\..\..\pageant.h" />
+    <ClInclude Include="..\..\..\ssh.h" />
+    <ClInclude Include="..\..\..\version.h" />
+    <ClInclude Include="..\..\rcstuff.h" />
+    <ClInclude Include="..\..\winhelp.h" />
+    <ClInclude Include="..\..\winsecur.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\aqsync.c" />
+    <ClCompile Include="..\..\..\be_misc.c" />
+    <ClCompile Include="..\..\..\callback.c" />
+    <ClCompile Include="..\..\..\conf.c" />
+    <ClCompile Include="..\..\..\ecc.c" />
+    <ClCompile Include="..\..\..\errsock.c" />
+    <ClCompile Include="..\..\..\marshal.c" />
+    <ClCompile Include="..\..\..\memory.c" />
+    <ClCompile Include="..\..\..\misc.c" />
+    <ClCompile Include="..\..\..\mpint.c" />
+    <ClCompile Include="..\..\..\pageant.c" />
+    <ClCompile Include="..\..\..\sshaes.c" />
+    <ClCompile Include="..\..\..\sshargon2.c" />
+    <ClCompile Include="..\..\..\sshauxcrypt.c" />
+    <ClCompile Include="..\..\..\sshblake2.c" />
+    <ClCompile Include="..\..\..\sshdes.c" />
+    <ClCompile Include="..\..\..\sshdss.c" />
+    <ClCompile Include="..\..\..\sshecc.c" />
+    <ClCompile Include="..\..\..\sshhmac.c" />
+    <ClCompile Include="..\..\..\sshmd5.c" />
+    <ClCompile Include="..\..\..\sshpubk.c" />
+    <ClCompile Include="..\..\..\sshrsa.c" />
+    <ClCompile Include="..\..\..\sshsh256.c" />
+    <ClCompile Include="..\..\..\sshsh512.c" />
+    <ClCompile Include="..\..\..\sshsha.c" />
+    <ClCompile Include="..\..\..\sshsha3.c" />
+    <ClCompile Include="..\..\..\stripctrl.c" />
+    <ClCompile Include="..\..\..\tree234.c" />
+    <ClCompile Include="..\..\..\utils.c" />
+    <ClCompile Include="..\..\..\version.c" />
+    <ClCompile Include="..\..\..\wcwidth.c" />
+    <ClCompile Include="..\..\wincapi.c" />
+    <ClCompile Include="..\..\winhandl.c" />
+    <ClCompile Include="..\..\winhelp.c" />
+    <ClCompile Include="..\..\winhsock.c" />
+    <ClCompile Include="..\..\winmisc.c" />
+    <ClCompile Include="..\..\winmiscs.c" />
+    <ClCompile Include="..\..\winnet.c" />
+    <ClCompile Include="..\..\winnohlp.c" />
+    <ClCompile Include="..\..\winnpc.c" />
+    <ClCompile Include="..\..\winnps.c" />
+    <ClCompile Include="..\..\winpgnt.c" />
+    <ClCompile Include="..\..\winpgntc.c" />
+    <ClCompile Include="..\..\winsecur.c" />
+    <ClCompile Include="..\..\winselgui.c" />
+    <ClCompile Include="..\..\winutils.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

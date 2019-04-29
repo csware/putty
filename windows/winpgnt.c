@@ -16,7 +16,7 @@
 #include "winsecur.h"
 #include "wincapi.h"
 #include "pageant.h"
-#include "licence.h"
+//#include "licence.h"
 #include "pageant-rc.h"
 
 #include <shellapi.h>
@@ -122,7 +122,7 @@ static INT_PTR CALLBACK LicenceProc(HWND hwnd, UINT msg,
 {
     switch (msg) {
       case WM_INITDIALOG:
-        SetDlgItemText(hwnd, IDC_LICENCE_TEXTBOX, LICENCE_TEXT("\r\n\r\n"));
+        //SetDlgItemText(hwnd, 1000, LICENCE_TEXT("\r\n\r\n"));
         return 1;
       case WM_COMMAND:
         switch (LOWORD(wParam)) {
@@ -151,7 +151,7 @@ static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT msg,
         char *text = dupprintf
             ("Pageant\r\n\r\n%s\r\n\r\n%s\r\n\r\n%s",
              ver, buildinfo_text,
-             "\251 " SHORT_COPYRIGHT_DETAILS ". All rights reserved.");
+             "\251 FUCK. All rights reserved.");
         sfree(buildinfo_text);
         SetDlgItemText(hwnd, IDC_ABOUT_TEXTBOX, text);
         MakeDlgItemBorderless(hwnd, IDC_ABOUT_TEXTBOX);
