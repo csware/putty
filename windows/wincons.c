@@ -122,7 +122,7 @@ int console_verify_ssh_host_key(
 	"If you want to carry on connecting but without updating\n"
 	"the cache, hit No.\n"
 	"If you want to abandon the connection completely, hit\n"
-	"Cancel. Hitting Cancel is the ONLY guaranteed safe\n" "choice.\n";
+	"Cancel. Hitting Cancel is the ONLY guaranteed safe choice.\n";
 
     static const char abandoned[] = "Connection abandoned.\n";
 
@@ -179,7 +179,7 @@ int console_verify_ssh_host_key(
 	else
 		return 0;
     }
-	return 1;
+	return 0;
 }
 
 int console_confirm_weak_crypto_primitive(
@@ -199,7 +199,7 @@ int console_confirm_weak_crypto_primitive(
 	message = dupprintf(msg, algtype, algname);
 	title = dupprintf(mbtitle, appname);
 
-	mbret = MessageBox(GetParentHwnd(), message, title, MB_ICONWARNING|MB_YESNO);
+	mbret = MessageBox(GetParentHwnd(), message, title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
 	sfree(message);
 	sfree(title);
 	if (mbret == IDYES)
@@ -230,8 +230,6 @@ int console_confirm_weak_cached_hostkey(
         "%s\n"
 	"Connection abandoned.\n";
     static const char abandoned[] = "Connection abandoned.\n";
-
-    char line[32];
 
     int mbret;
     char *message, *title;
@@ -295,15 +293,14 @@ static int console_askappend(LogPolicy *lp, Filename *filename,
 	"You can overwrite it with a new session log,\n"
 	"append your session log to the end of it,\n"
 	"or disable session logging for this session.\n"
-	"Enter \"y\" to wipe the file, \"n\" to append to it,\n"
-	"or just press Return to disable logging.\n"
-	"Wipe the log file? (y/n, Return cancels logging) ";
+	"Hit Yes to wipe the file, hit No to append to it,\n"
+	"or just press Cancel to disable logging.\n"
+	"Wipe the log file?";
 
     static const char msgtemplate_batch[] =
 	"The session log file \"%.*s\" already exists.\n"
 	"Logging will not be enabled.\n";
 
-    char line[32];
     int mbret;
     char *message, *title;
     static const char mbtitle[] = "%s Session log";
