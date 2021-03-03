@@ -31,6 +31,9 @@ static bool pageant_local = false;
 
 static bool pageant_ask_before_sign = false;
 
+static int pageant_ask_before_sign_open = 0;
+#define MAXIUMUM_OPEN_CONFIRMBOXES 1
+
 struct PageantClientDialogId {
     int dummy;
 };
@@ -467,13 +470,15 @@ static void signop_coroutine(PageantAsyncOp *pao)
         }
         sfree(fingerprint);
 
-        if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+        if (++pageant_ask_before_sign_open > MAXIUMUM_OPEN_CONFIRMBOXES || !modalconfirmbox("Pageant: Confirm key usage", msg)) {
+            --pageant_ask_before_sign_open;
             response = strbuf_new();
             failure(so->pao.info->pc, so->pao.reqid, response, so->failure_type,
                     "sign request denied by user");
             sfree(msg);
             goto respond;
         }
+        --pageant_ask_before_sign_open;
         sfree(msg);
     }
 
@@ -790,11 +795,13 @@ static PageantAsyncOp *pageant_make_op(
             }
             sfree(fingerprint);
 
-            if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+            if (++pageant_ask_before_sign_open > MAXIUMUM_OPEN_CONFIRMBOXES || !modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                --pageant_ask_before_sign_open;
                 sfree(msg);
                 fail("sign request denied by user");
                 goto challenge1_cleanup;
             }
+            --pageant_ask_before_sign_open;
             sfree(msg);
         }
         response = rsa_ssh1_decrypt(challenge, pk->rkey);
