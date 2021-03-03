@@ -31,6 +31,9 @@ static bool pageant_local = false;
 
 static bool pageant_ask_before_sign = false;
 
+static int pageant_ask_before_sign_open = 0;
+#define MAXIUMUM_OPEN_CONFIRMBOXES 1
+
 /*
  * rsakeys stores SSH-1 RSA keys. ssh2keys stores all SSH-2 keys.
  */
@@ -270,10 +273,12 @@ void pageant_handle_msg(BinarySink *bs,
                 }
                 sfree(fingerprint);
 
-                if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                if (++pageant_ask_before_sign_open > MAXIUMUM_OPEN_CONFIRMBOXES || !modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                    --pageant_ask_before_sign_open;
                     sfree(msg);
                     goto challenge1_cleanup;
                 }
+                --pageant_ask_before_sign_open;
                 sfree(msg);
             }
 
@@ -384,11 +389,13 @@ void pageant_handle_msg(BinarySink *bs,
                 }
                 sfree(fingerprint);
 
-                if (!modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                if (++pageant_ask_before_sign_open > MAXIUMUM_OPEN_CONFIRMBOXES || !modalconfirmbox("Pageant: Confirm key usage", msg)) {
+                    --pageant_ask_before_sign_open;
                     pageant_failure_msg(bs, "sign request denied by user", logctx, logfn);
                     sfree(msg);
                     return;
                 }
+                --pageant_ask_before_sign_open;
                 sfree(msg);
             }
 
