@@ -82,16 +82,16 @@ SeatPromptResult console_confirm_ssh_host_key(
     char *keystr, SeatDialogText *text, HelpCtx helpctx,
     void (*callback)(void *ctx, SeatPromptResult result), void *ctx)
 {
-	int mbret;
-	const char* title = NULL;
+    int mbret;
+    const char* title = NULL;
 
     strbuf *buf = console_print_seatdialogtext(text, &title);
     if (!buf)
         return SPR_SW_ABORT("Cannot confirm a host key in batch mode");
 
-	mbret = MessageBox(GetParentHwnd(), buf->s, title, MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
-	strbuf_free(buf);
-    if (mbret == IDYES)
+    mbret = MessageBox(GetParentHwnd(), buf->s, title, MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
+    strbuf_free(buf);
+	if (mbret == IDYES)
 	{
 		store_host_key(host, port, keytype, keystr);
 		return SPR_OK;
@@ -111,7 +111,7 @@ SeatPromptResult console_confirm_weak_crypto_primitive(
     void (*callback)(void *ctx, SeatPromptResult result), void *ctx)
 {
 	int mbret;
-	char *title = NULL;
+    char *title = NULL;
 	static const char mbtitle[] = "%s Security Alert";
 
     strbuf* buf = console_print_seatdialogtext(text, &title);
@@ -121,8 +121,8 @@ SeatPromptResult console_confirm_weak_crypto_primitive(
 
 	title = dupprintf(mbtitle, appname);
 
-	mbret = MessageBox(GetParentHwnd(), buf->s, title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
-	strbuf_free(buf);
+    mbret = MessageBox(GetParentHwnd(), buf->s, title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
+    strbuf_free(buf);
 	sfree(title);
     if (mbret == IDYES) {
         return SPR_OK;
@@ -136,7 +136,7 @@ SeatPromptResult console_confirm_weak_cached_hostkey(
     void (*callback)(void *ctx, SeatPromptResult result), void *ctx)
 {
 	int mbret;
-	char *title = NULL;
+    char *title = NULL;
 	static const char mbtitle[] = "%s Security Alert";
 
     strbuf* buf = console_print_seatdialogtext(text, &title);
@@ -144,11 +144,10 @@ SeatPromptResult console_confirm_weak_cached_hostkey(
         return SPR_SW_ABORT("Cannot confirm a weak cached host key "
                             "in batch mode");
 
-
 	title = dupprintf(mbtitle, appname);
 
     mbret = MessageBox(GetParentHwnd(), buf->s, title, MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
-	strbuf_to_str(buf);
+    strbuf_to_str(buf);
 	sfree(title);
 
     if (mbret == IDYES) {
